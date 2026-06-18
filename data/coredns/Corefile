@@ -1,0 +1,11 @@
+example.com {
+  forward . 172.20.0.10
+  cache 30
+  log
+}
+
+. {
+  forward . 1.1.1.1 1.0.0.1
+  cache 30
+  log
+}

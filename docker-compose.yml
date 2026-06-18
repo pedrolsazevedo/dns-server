@@ -1,17 +1,60 @@
 services:
   bind9:
     container_name: bind9
-#    image: internetsystemsconsortium/bind9:9.19 # OS/ARCH=linux/amd64
-    image: psazevedo/bind9:9.19 # linux/arm64/v8 built with raspberry pi 4
-    expose:
-      - "53:53/udp"
-      - "53:53/tcp"
-      - "953:953/tcp"
+    image: ${BIND9_IMAGE:-dns-server-bind9:latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5553:53/udp"
+      - "5553:53/tcp"
     volumes:
-      - "./data/config:/etc/bind"       # Configuration folder
-      - "./data/cache:/var/cache/bind"  # Cache
-      - "./data/zones:/var/lib/bind"    # secondary zones
-      - "./data/logs:/var/log"          # Logs
-    privileged: false
-    platform: linux/amd64
-    user: 
+      - "./data/config:/etc/bind:ro"
+      - "./data/zones:/var/lib/bind:ro"
+      - bind9-cache:/var/cache/bind
+      - bind9-logs:/var/log
+    networks:
+      dns-net:
+        ipv4_address: 172.20.0.10
+    restart: unless-stopped
+
+  coredns-auth:
+    container_name: coredns-auth
+    image: coredns/coredns:1.11.1
+    ports:
+      - "2053:53/udp"
+      - "2053:53/tcp"
+    volumes:
+      - "./data/coredns-auth:/etc/coredns:ro"
+    command: ["-conf", "/etc/coredns/Corefile"]
+    networks:
+      dns-net:
+        ipv4_address: 172.20.0.12
+    restart: unless-stopped
+
+  coredns:
+    container_name: coredns
+    image: coredns/coredns:1.11.1
+    ports:
+      - "1053:53/udp"
+      - "1053:53/tcp"
+    volumes:
+      - "./data/coredns:/etc/coredns:ro"
+    command: ["-conf", "/etc/coredns/Corefile"]
+    networks:
+      dns-net:
+        ipv4_address: 172.20.0.11
+    restart: unless-stopped
+    depends_on:
+      - bind9
+
+networks:
+  dns-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+volumes:
+  bind9-cache:
+  bind9-logs:

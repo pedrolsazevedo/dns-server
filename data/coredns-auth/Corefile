@@ -1,0 +1,15 @@
+service.example.com {
+  file /etc/coredns/db.service.example.com
+  log
+}
+
+example.com {
+  file /etc/coredns/db.example.com
+  log
+}
+
+. {
+  forward . 1.1.1.1 1.0.0.1
+  cache 30
+  log
+}
