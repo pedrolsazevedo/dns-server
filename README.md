@@ -56,10 +56,8 @@ dig @127.0.0.1 -p 1053 google.com A
 
 ## Documentation
 
-- [docs/plan.md](docs/plan.md) — Project plan and architecture
 - [docs/zone-guide-bind9.md](docs/zone-guide-bind9.md) — Bind9 zone configuration guide
 - [docs/zone-guide-coredns.md](docs/zone-guide-coredns.md) — CoreDNS authoritative zone guide
-- [docs/multi-arch-build.md](docs/multi-arch-build.md) — Docker Bake multi-arch setup
 
 ## Folder Structure
 
